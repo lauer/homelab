@@ -1,0 +1,14 @@
+# Temp/system files
+.DS_Store
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Taskfile
+.task
+.env
