@@ -1,0 +1,12 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  bootstrap-data-disk:
+    desc: "Setup data disk"
+    cmds:
+      - ansible-playbook -i {{.INVENTORY}} bootstrap-data-disk.yaml
+    requires:
+      vars: [INVENTORY]
+

@@ -4,12 +4,17 @@ version: "3"
 
 vars:
   TERRAFORM_DIR: "./terraform"
+  ANSIBLE_DIR: './ansible'
 
 includes:
   terraform:
     taskfile: ./.taskfiles/terraform/taskfile.yaml
     dir: "{{.TERRAFORM_DIR}}"
     aliases: [tf]
+  ansible:
+    taskfile: ./.taskfiles/ansible/taskfile.yaml
+    dir: "{{.ANSIBLE_DIR}}"
+    aliases: [ans]
 
 tasks:
   default:

@@ -1,0 +1,15 @@
+---
+
+all: 
+  children: 
+    k8s_nodes:
+      hosts:
+        kserv-node-1:
+          ansible_host: 192.168.0.84
+        kserv-node-2:
+          ansible_host: 192.168.0.85
+        kserv-node-3:
+          ansible_host: 192.168.0.86
+
+  vars:
+    ansible_user: ubuntu

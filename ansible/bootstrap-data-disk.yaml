@@ -1,0 +1,65 @@
+---
+
+- name: Setup DataDisk mount
+  become: true
+
+  hosts: all 
+
+  vars:
+    mount_path: "/opt/data"
+    lun: 1
+
+  tasks: 
+    - name: Check if mount path exists
+      stat:
+        path: "{{ mount_path }}"
+      register: mount_path_status
+    - name: Fail if mount path already exists
+      fail:
+        msg: "Mount path {{ mount_path }} already exists. Stopping playbook."
+      when: mount_path_status.stat.exists
+    - name: Identify the device via LUN
+      shell: "lsblk -o NAME,HCTL,SIZE,MOUNTPOINT | grep -e '\\d*:\\d*:\\d*:{{ lun }}' -P | awk -F' ' '{print $1}'"
+      register: device
+    - debug:
+        msg: "Using device {{ device.stdout }}"
+    - name: Create a new partition
+      shell: "parted /dev/{{ device.stdout }} --script mklabel gpt mkpart xfspart xfs 0% 100%"
+      args:
+        executable: /bin/bash
+    - name: Mkfs on data disk
+      community.general.filesystem:
+        fstype: "xfs"
+        force: true
+        dev: "/dev/{{ device.stdout }}1"
+    - name: Check for partition & update GPT
+      shell: "partprobe /dev/{{ device.stdout }}1"
+      register: partprobe_result
+    - ansible.builtin.assert:
+        that:
+          - partprobe_result.stdout == ""
+        fail_msg: "Partprobe returned message: {{ partprobe_result.stdout }}"
+        success_msg: "'Partprobe returned without message"
+    - name: Find UUID
+      shell: "blkid | grep {{ device.stdout }}1 | awk -F ' ' '{print $2}'"
+      register: uuid
+    - name: Create mountpoint
+      file: path={{ mount_path }} state=directory
+    - name: Mount the data disk by UUID
+      ansible.posix.mount:
+        path: "{{ mount_path }}"
+        src: "{{ uuid.stdout }}"
+        fstype: "xfs"
+        state: present
+    - name: Reboot the vm
+      ansible.builtin.reboot:
+    - name: Fetching mounted FS info
+      shell: "mount -t xfs | grep {{ device.stdout }}1 | awk -F ' ' '{print $3}'"
+      register: mount_result
+      # todo when must be a separate task
+    - name: Checking if FS is mounted
+      ansible.builtin.assert:
+        that:
+          - mount_result.stdout == mount_path
+        fail_msg: "Mount not found."
+        success_msg: "'Mount confirmed."
