@@ -3,7 +3,7 @@
 
 ## 🤝 Thanks
 
-I’ve picked up tons of ideas and inspiration from the K8s@Home and home-ops crowd along the way. [MacroPower](https://github.com/MacroPower/homelab/), [RazeLighter777](https://github.com/RazeLighter777/iaas), [ahinko](https://github.com/ahinko/home-ops/), [bjw-s](https://github.com/bjw-s-labs/home-ops) and many others.
+I’ve picked up tons of ideas and inspiration from the K8s@Home and home-ops crowd along the way. [MacroPower](https://github.com/MacroPower/homelab/), [RazeLighter777](https://github.com/RazeLighter777/iaas), [ahinko](https://github.com/ahinko/home-ops/), [bjw-s](https://github.com/bjw-s-labs/home-ops), [gruberdev](https://github.com/gruberdev/homelab/) and many others.
 
 
 TODO: add home h 

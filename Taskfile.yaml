@@ -17,6 +17,14 @@ includes:
     aliases: [ans]
 
 tasks:
+  lint:
+    desc: Performs lint testing on the YAML files in the repository using the yamllint tool to ensure proper formatting and syntax.
+    preconditions:
+      - sh: "which yamllint"
+        msg: "yamllint {{.PATH_ERROR}}"
+    cmds:
+      - yamllint -c ./.yamllint .
+
   default:
     silent: true
     cmd: task -l
