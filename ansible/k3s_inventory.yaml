@@ -1,8 +1,16 @@
 ---
 
-all: 
-  children: 
-    k8s_nodes:
+# Docs: https://github.com/k3s-io/k3s-ansible/blob/master/inventory-sample.yml
+
+k3s_cluster:
+  children:
+    server:
+      hosts: # Note
+        kserv-prod-1:
+          ansible_host: 192.168.0.81 
+      vars:
+        ansible_user: root
+    agent:
       hosts:
         kserv-node-1:
           ansible_host: 192.168.0.84
@@ -10,6 +18,14 @@ all:
           ansible_host: 192.168.0.85
         kserv-node-3:
           ansible_host: 192.168.0.86
+      vars:
+        k3s_server_location: "/opt/data/rancher/k3s"
 
   vars:
+    ansible_port: 22
     ansible_user: ubuntu
+    k3s_version: v1.30.8+k3s1    
+    token: "{{ lookup('community.general.onepassword', 'Home K3s Server User', field='token', vault='2tksdmduwopacqk2cplqx7e75y')}}"
+    api_endpoint: 192.168.0.81
+    extra_agent_args: ""
+    extra_server_args: "--tls-san k8s.home.lauer.dk --tls-san 192.168.0.80"

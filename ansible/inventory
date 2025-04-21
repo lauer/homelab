@@ -1,6 +1,0 @@
-[play]
-
-192.168.0.191 sshuser=root
-
-[play:vars]
-ansible_user = root

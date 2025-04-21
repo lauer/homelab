@@ -10,3 +10,8 @@ tasks:
     requires:
       vars: [INVENTORY]
 
+  install-k3s-agents:
+    desc: "Setup K3S agents"
+    cmds:
+      - ansible-playbook k3s.orchestration.site -D -i k3s_inventory.yaml -l agent {{.CLI_ARGS}}
+    prompt: "Are you sure? - Run with -C first"
