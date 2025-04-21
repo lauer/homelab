@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-k8s-home-certificate
+  namespace: argocd
+spec:
+  secretName: argocd-k8s-certificate
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+  - 'argocd.k8s.home.lauer.dk'
