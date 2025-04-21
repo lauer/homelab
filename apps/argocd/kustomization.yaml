@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
   - base/projects
 
+  - base/core/argocd.yaml
+
   - base/argo-cd-ui-ingress.yaml
   - base/ssl-certificate.yaml
   - https://raw.githubusercontent.com/argoproj/argo-cd/v2.14.10/manifests/install.yaml
