@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+silent: false
+
+vars: 
+  APP: '{{base .USER_WORKING_DIR}}'
+
+tasks:  
+  lint:
+    desc: Lint the Helm chart
+    cmd: helm lint . -f values.yaml
+    dir: '{{.USER_WORKING_DIR}}'
+
+  deps:
+    desc: Update the helm chart dependencies
+    cmd: helm dependency update
+    dir: '{{.USER_WORKING_DIR}}'
+
+  diff: 
+    desc: Show the difference between the template and the installed
+    cmd: helm template --replace --debug {{.APP}} . -f values.yaml | kubectl diff -f - || true
+    dir: '{{.USER_WORKING_DIR}}'
+  
+  install: 
+    desc: Install the template manually
+    cmds: 
+      - task: diff
+      - sleep 2
+      - helm template --replace {{.APP}} . -f values.yaml | kubectl apply -f -
+    dir: '{{.USER_WORKING_DIR}}'
+      

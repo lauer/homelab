@@ -1,0 +1,21 @@
+---
+version: '3'
+
+silent: true
+
+tasks:
+  login:
+    preconditions:
+    - sh: 'which argocd'
+      msg: 'argocd {{.PATH_ERROR}}'    
+    cmds:
+    - argocd login argocd.k8s.home.lauer.dk --username {{.ARGOCD_USERNAME}} --password {{.ARGOCD_PASSWORD}}
+    vars:
+      ARGOCD_USERNAME: admin
+      ARGOCD_PASSWORD: 
+        sh: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+  
+  password:
+    cmds:
+    - kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+    ignore_error: true

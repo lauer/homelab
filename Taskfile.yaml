@@ -15,6 +15,15 @@ includes:
     taskfile: ./.taskfiles/ansible/taskfile.yaml
     dir: "{{.ANSIBLE_DIR}}"
     aliases: [ans]
+  kube:
+    taskfile: ./.taskfiles/kube/taskfile.yaml
+    aliases: [k]
+  argocd:
+    taskfile: ./.taskfiles/argocd/Taskfile.yaml
+  helm: 
+    taskfile: ./.taskfiles/helm/Taskfile.yaml
+    aliases: [h]
+
 
 tasks:
   lint:
