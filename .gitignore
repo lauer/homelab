@@ -9,6 +9,12 @@
 *.tfstate.*
 .terraform.lock.hcl
 
+# helm files
+Chart.lock
+*.tgz
+
 # Taskfile
 .task
 .env
+
+tmp/*
