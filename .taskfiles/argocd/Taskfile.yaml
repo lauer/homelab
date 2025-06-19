@@ -1,3 +1,4 @@
+### ArgoCD Taskfile
 ---
 version: '3'
 
@@ -19,3 +20,13 @@ tasks:
     cmds:
     - kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
     ignore_error: true
+
+  apps: 
+    desc: Show ArgoCD apps
+    cmd: "kubectl -n argocd get apps"
+
+  create-namespace:
+    desc: Create namespace which can be controlled by ArgoCD - APP_NAMESPACE=namespace
+    cmd: kubectl create namespace {{.APP_NAMESPACE}} --dry-run=client -o json|jq '.metadata += {"labels":{"argocd.argoproj.io/managed-by":"argocd"}}' | kubectl apply -f -
+    requires:
+      vars: [APP_NAMESPACE]

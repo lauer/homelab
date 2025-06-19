@@ -15,12 +15,17 @@ tasks:
 
   deps:
     desc: Update the helm chart dependencies
-    cmd: helm dependency update
+    cmd: helm dependency update .
     dir: '{{.USER_WORKING_DIR}}'
 
   diff: 
     desc: Show the difference between the template and the installed
     cmd: helm template --replace --debug {{.APP}} . -f values.yaml | kubectl diff -f - || true
+    dir: '{{.USER_WORKING_DIR}}'
+
+  template:
+    desc: Show generated template
+    cmd: helm template {{.APP}} . -f values.yaml | yq
     dir: '{{.USER_WORKING_DIR}}'
   
   install: 
