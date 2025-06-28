@@ -1,0 +1,21 @@
+        image:
+          repository: traefik/whoami
+          tag: latest
+
+        service:
+          main:
+            enabled: true
+            ports:
+              http:
+                port: 80
+
+        ingress:
+          main:
+            enabled: true
+            annotations:
+              kubernetes.io/ingress.class: traefik
+            hosts:
+              - host: whoami.k8s.home.lauer.dk
+                paths:
+                  - path: /
+                    pathType: Prefix
