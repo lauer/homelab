@@ -12,7 +12,7 @@ metadata:
 spec:
   destination:
     namespace: postgres-operator
-    server: https://kubernetes.default.svc
+    name: in-cluster
   project: default
   source:
     chart: postgres-operator
@@ -37,7 +37,7 @@ metadata:
 spec:
   destination:
     namespace: postgres-operator
-    server: https://kubernetes.default.svc
+    name: in-cluster
   project: default
   source:
     chart: postgres-operator-ui
