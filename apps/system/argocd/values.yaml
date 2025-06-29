@@ -30,6 +30,18 @@ argo-cd:
   redis:
     metrics: *metrics
 argocd-apps:
+  projects: 
+    default:      
+      namespace: argocd
+      destinations:
+        - name: "*"
+          namespace: "*"
+          server: "*"
+      sourceRepos:
+        - "*"
+      clusterResourceWhitelist:
+        - group: "*"
+          kind: "*"
   applicationsets:
     root:
       namespace: argocd
