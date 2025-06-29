@@ -52,9 +52,6 @@ argocd-apps:
             repoURL: *repoURL
             path: '{{path}}'
             targetRevision: *revision
-            directory:
-              recurse: false
-              include: "{manifest.yaml}"
           syncPolicy:
             automated:
               prune: true
