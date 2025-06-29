@@ -54,7 +54,7 @@ argocd-apps:
               - path: apps/system/*
               - path: apps/services/*
               - exclude: true
-                path: apps/**/manifest.yaml
+                path: apps/system/postgres-operator/manifest.yaml
         - git:
             repoURL: *repoURL
             revision: *revision
