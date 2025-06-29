@@ -24,10 +24,7 @@ spec:
           registry: ghcr.io
           repository: zalando/postgres-operator
   syncPolicy:
-    automated:
-      allowEmpty: true
-      prune: true
-      selfHeal: true
+    automated: {}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application

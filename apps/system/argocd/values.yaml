@@ -52,6 +52,13 @@ argocd-apps:
             directories:
               - path: apps/system/*
               - path: apps/services/*
+              - exclude: true
+                path: apps/**/manifest.yaml
+        - git:
+            repoURL: *repoURL
+            revision: *revision
+            files:
+              - path: apps/**/manifest.yaml
       template:
         metadata:
           name: '{{path.basename}}'
