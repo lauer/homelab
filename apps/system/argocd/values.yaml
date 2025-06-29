@@ -30,9 +30,10 @@ argo-cd:
   redis:
     metrics: *metrics
 argocd-apps:
-  projects: 
-    default:      
+  projects:
+    default:
       namespace: argocd
+      description: Default place for applications
       destinations:
         - name: "*"
           namespace: "*"
