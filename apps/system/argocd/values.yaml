@@ -40,8 +40,6 @@ argocd-apps:
             directories:
               - path: apps/system/*
               - path: apps/services/*
-              - path: apps/**/manifest.yaml
-                exclude: true
       template:
         metadata:
           name: '{{path.basename}}'
@@ -54,6 +52,9 @@ argocd-apps:
             repoURL: *repoURL
             path: '{{path}}'
             targetRevision: *revision
+            directory:
+              recurse: false
+              include: "{manifest.yaml}"
           syncPolicy:
             automated:
               prune: true
