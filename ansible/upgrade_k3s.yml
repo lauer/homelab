@@ -1,0 +1,110 @@
+---
+- name: Upgrade K3s control plane nodes
+  hosts: server
+  become: true
+  serial: 1
+
+  vars:
+    install_script: https://get.k3s.io
+
+  tasks:
+
+    - name: Drain node
+      delegate_to: "{{ groups['server'][0] }}"
+      command: >
+        kubectl drain {{ inventory_hostname }}
+        --ignore-daemonsets
+        --delete-emptydir-data
+        --force
+      register: drain_result
+      changed_when: "'already cordoned' not in drain_result.stderr"
+      failed_when: false
+
+    - name: Stop k3s
+      systemd:
+        name: k3s
+        state: stopped
+
+    - name: Upgrade k3s server
+      shell: |
+        curl -sfL {{ install_script }} | \
+        INSTALL_K3S_VERSION={{ k3s_version }} \
+        INSTALL_K3S_EXEC="server {{ extra_server_args }}" \
+        sh -
+      args:
+        executable: /bin/bash
+
+    - name: Start k3s
+      systemd:
+        name: k3s
+        state: started
+        enabled: true
+
+    - name: Wait for node to be Ready
+      delegate_to: "{{ groups['server'][0] }}"
+      shell: |
+        kubectl wait --for=condition=Ready node/{{ inventory_hostname }} --timeout=300s
+      register: wait_result
+      retries: 10
+      delay: 30
+      until: wait_result.rc == 0
+
+    - name: Uncordon node
+      delegate_to: "{{ groups['server'][0] }}"
+      command: kubectl uncordon {{ inventory_hostname }}
+
+
+
+- name: Upgrade K3s worker nodes
+  hosts: agent
+  become: true
+  serial: 1
+
+  vars:
+    install_script: https://get.k3s.io
+
+  tasks:
+
+    - name: Drain worker node
+      delegate_to: "{{ groups['server'][0] }}"
+      command: >
+        kubectl drain {{ inventory_hostname }}
+        --ignore-daemonsets
+        --delete-emptydir-data
+        --force
+      failed_when: false
+
+    - name: Stop k3s-agent
+      systemd:
+        name: k3s-agent
+        state: stopped
+
+    - name: Upgrade k3s agent
+      shell: |
+        curl -sfL {{ install_script }} | \
+        INSTALL_K3S_VERSION={{ k3s_version }} \
+        INSTALL_K3S_EXEC="agent {{ extra_agent_args }}" \
+        K3S_URL=https://{{ api_endpoint }}:6443 \
+        K3S_TOKEN={{ token }} \
+        sh -
+      args:
+        executable: /bin/bash
+
+    - name: Start k3s-agent
+      systemd:
+        name: k3s-agent
+        state: started
+        enabled: true
+
+    - name: Wait for worker node Ready
+      delegate_to: "{{ groups['server'][0] }}"
+      shell: |
+        kubectl wait --for=condition=Ready node/{{ inventory_hostname }} --timeout=300s
+      register: wait_result
+      retries: 5
+      delay: 20
+      until: wait_result.rc == 0
+
+    - name: Uncordon worker node
+      delegate_to: "{{ groups['server'][0] }}"
+      command: kubectl uncordon {{ inventory_hostname }}
