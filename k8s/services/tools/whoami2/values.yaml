@@ -1,0 +1,35 @@
+strategy: RollingUpdate
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: traefik/whoami
+          tag: latest
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 80
+
+ingress:
+  main:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      cert-manager.io/cluster-issuer: letsencrypt
+    hosts:
+      - host: &host whoami2.k8s.home.lauer.dk
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+    tls:
+      - hosts:
+          - *host
+        secretName: whoami2-tls-certificate
