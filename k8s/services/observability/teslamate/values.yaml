@@ -1,0 +1,150 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/app-template-5.0.1/charts/library/common/values.schema.json
+controllers:
+  main:
+    strategy: RollingUpdate
+    containers:
+      teslamate:
+        image:
+          repository: teslamate/teslamate
+          tag: 1.33.0
+          pullPolicy: IfNotPresent
+        env:
+          TZ: Europe/Copenhagen
+          DATABASE_HOST: 192.168.0.201
+          DATABASE_NAME: teslamate
+          DATABASE_SSL: "false"
+          MQTT_HOST: 192.168.0.200
+        envFrom:
+          - secretRef:
+              name: teslamate-secrets
+
+        probes:
+          readiness:
+            enabled: true
+          startup:
+            enabled: true
+  agile:
+    containers:
+      teslamateagile:
+        image:
+          repository: ghcr.io/amyjeanes/teslamateagile
+          tag: v1.21.0
+        env:
+          - name: TZ
+            value: Europe/Copenhagen
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: teslamate-secrets
+                key: DATABASE_USER
+          - name: DATABASE_PASS
+            valueFrom:
+              secretKeyRef:
+                name: teslamate-secrets
+                key: DATABASE_PASS
+          - name: DATABASE_NAME
+            value: teslamate
+          - name: DATABASE_HOST
+            value: d.lauer.dk
+          - name: TeslaMate__UpdateIntervalSeconds
+            value: '300'
+          - name: TeslaMate__GeofenceId
+            value: '1'
+          - name: TeslaMate__Phases
+            value: '1'
+          - name: Logging__LogLevel__Default
+            value: Debug
+          - name: TeslaMate__EnergyProvider
+            value: Energinet
+          - name: Energinet__Currency
+            value: DKK
+          - name: Energinet__Region
+            value: DK2
+          - name: Energinet__FixedPrices__TimeZone
+            value: Europe/Copenhagen
+          - name: Energinet__FixedPrices__Prices__0
+            value: 00:00-06:00=0.15187
+          - name: Energinet__FixedPrices__Prices__1
+            value: 06:00-17:00=0.45563
+          - name: Energinet__FixedPrices__Prices__2
+            value: 17:00-21:00=1.36675
+          - name: Energinet__FixedPrices__Prices__3
+            value: 21:00-24:00=0.45563
+          - name: TeslaMate__FeePerKilowattHour
+            value: '1.04875' # 2023H2 - 0,87125+0,06750+0,07250 + ewii 0,03750
+          - name: Energinet__VAT
+            value: '1.25'
+
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 4000
+
+ingress:
+  main:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    hosts:
+      - host: &host teslamate.k8s.home.lauer.dk
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+    tls:
+      - hosts:
+          - *host
+        secretName: teslamate-k8s-certificate
+
+rawResources:
+  teslamate-secret:
+    enabled: true
+    forceRename: teslamate-secrets
+    manifest:
+      apiVersion: external-secrets.io/v1
+      kind: ExternalSecret
+      metadata:
+        namespace: app-tesla
+      # name of the ExternalSecret & Secret which gets created
+      spec:
+        secretStoreRef:
+          kind: ClusterSecretStore
+          name: k8s
+        target:
+          creationPolicy: Owner
+        data:
+        - secretKey: ENCRYPTION_KEY
+          remoteRef:
+            # 1password-entry-name
+            key: "Teslamate Database"
+            # 1password-field
+            property: encryption_key
+        - secretKey: DATABASE_USER
+          remoteRef:
+            # 1password-entry-name
+            key: "Teslamate Database"
+            # 1password-field
+            property: username
+        - secretKey: DATABASE_PASS
+          remoteRef:
+            # 1password-entry-name
+            key: "Teslamate Database"
+            # 1password-field
+            property: password
+        - secretKey: MQTT_USERNAME
+          remoteRef:
+            # 1password-entry-name
+            key: "mqtt k8s"
+            # 1password-field
+            property: mqtt_username
+        - secretKey: MQTT_PASSWORD
+          remoteRef:
+            # 1password-entry-name
+            key: "mqtt k8s"
+            # 1password-field
+            property: mqtt_password
