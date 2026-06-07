@@ -3,4 +3,5 @@ kind: Kustomization
 
 resources:
   - observability/appset-observability.yaml
+  - security/appset-security.yaml
   - tools/appset-tools.yaml

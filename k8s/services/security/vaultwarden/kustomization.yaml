@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: app-template
+    repo: https://bjw-s-labs.github.io/helm-charts
+    releaseName: vaultwarden
+    namespace: app-vaultwarden
+    version: 5.0.1
+    valuesFile: values.yaml
