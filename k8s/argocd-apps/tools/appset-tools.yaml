@@ -9,7 +9,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/lauer/homelab
-        revision: testing-apps
+        revision: play
         directories:
           - path: k8s/services/tools/*
   template:
@@ -21,7 +21,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/lauer/homelab
-        targetRevision: testing-apps
+        targetRevision: play
         path: '{{ path }}'
       destination:
         name: in-cluster
