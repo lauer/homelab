@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homeops
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: k8s/argocd-apps
+    repoURL: https://github.com/lauer/homelab
+    targetRevision: play
+  destination:
+    namespace: argocd
+    name: in-cluster
