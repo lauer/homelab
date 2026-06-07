@@ -19,6 +19,24 @@ controllers:
           limits:
             memory: 64Mi
 
+ingress:
+  whoami:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+      cert-manager.io/cluster-issuer: letsencrypt
+    hosts:
+      - host: &host whoami3.k8s.home.lauer.dk
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: whoami
+              port: http
+    tls:
+      - hosts:
+          - *host
+        secretName: whoami3-tls-certificate
 
 service:
   whoami:
