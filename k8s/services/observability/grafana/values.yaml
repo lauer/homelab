@@ -1,0 +1,51 @@
+---
+
+plugins:
+  - grafana-clock-panel
+  - grafana-piechart-panel
+  - grafana-worldmap-panel
+  - victoriametrics-logs-datasource
+  - alexanderzobnin-zabbix-app
+  - natel-discrete-panel
+  - natel-plotly-panel
+  - pr0ps-trackmap-panel
+  - vonage-status-panel
+
+grafana.ini:
+  paths:
+    data: /var/lib/grafana/
+    logs: /var/log/grafana
+    plugins: /var/lib/grafana/plugins
+    provisioning: /etc/grafana/provisioning
+  analytics:
+    check_for_updates: false
+    reporting_enabled: false
+  log:
+    mode: console
+  news:
+    news_feed_enabled: false
+  grafana_net:
+    url: https://grafana.net
+  server:
+    root_url: "https://grafana.k8s.home.lauer.dk"
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  hosts: &hosts
+    - grafana.k8s.home.lauer.dk
+  tls:
+    - hosts: *hosts
+      secretName: grafana-k8s-certificate
+
+persistence:
+  type: pvc
+  enabled: true
+  storageClassName: longhorn
+  accessModes:
+    - ReadWriteOnce
+  size: 5Gi
+  finalizers:
+    - kubernetes.io/pvc-protection
