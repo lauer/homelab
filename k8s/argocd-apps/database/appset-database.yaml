@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: databases
+  namespace: argocd
+  labels:
+    homeops.services.component.databases: cluster
+spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  generators:
+    - git:
+        repoURL: https://github.com/lauer/homelab
+        revision: play
+        directories:
+          - path: k8s/services/database/*
+  template:
+    metadata:
+      name: '{{ path.basename }}'
+      labels:
+        homeops.services.component.databases: cluster
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/lauer/homelab
+        targetRevision: play
+        path: '{{ path }}'
+      destination:
+        name: in-cluster
+        namespace: db
+      syncPolicy:
+        syncOptions:
+          - ServerSideApply=true
+          - CreateNamespace=true
