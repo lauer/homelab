@@ -7,11 +7,12 @@ controllers:
       teslamate:
         image:
           repository: teslamate/teslamate
-          tag: 1.33.0
+          tag: 4.0.1
           pullPolicy: IfNotPresent
         env:
           TZ: Europe/Copenhagen
           DATABASE_HOST: 192.168.0.201
+          DATABASE_PORT: 5433
           DATABASE_NAME: teslamate
           DATABASE_SSL: "false"
           MQTT_HOST: 192.168.0.200
