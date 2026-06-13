@@ -1,4 +1,0 @@
-postgres-operator:
-  image:
-    registry: ghcr.io
-    repository: zalando/postgres-operator
