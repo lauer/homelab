@@ -1,0 +1,19 @@
+ingress:
+  enabled: true
+  className: traefik
+  annotations:    
+    cert-manager.io/cluster-issuer: letsencrypt
+  hosts:
+    - host: &host trek.k8s.home.lauer.dk
+      paths:
+        - /
+  tls:
+    - hosts:
+        - *host
+      secretName: trek-tls-certificate
+
+
+env: 
+  TZ: Europe/Copenhagen
+  ALLOWED_ORIGINS: https://trek.k8s.home.lauer.dk
+  APP_URL: https://trek.k8s.home.lauer.dk
