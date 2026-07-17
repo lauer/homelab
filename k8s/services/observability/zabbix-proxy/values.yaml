@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/app-template-5.0.1/charts/library/common/values.schema.json
+
+controllers:
+  main:
+    # SQLite is a local, single-writer database.
+    strategy: Recreate
+    containers:
+      main:
+        image:
+          repository: zabbix/zabbix-proxy-sqlite3
+          tag: alpine-6.4.21
+          pullPolicy: IfNotPresent
+        env:
+          TZ: Europe/Copenhagen
+          ZBX_PROXYMODE: "0"
+          ZBX_HOSTNAME: zabbix-proxy.k8s.home.lauer.dk
+          ZBX_SERVER_HOST: zabbix.lauer.dk
+
+service:
+  main:
+    controller: main
+    type: LoadBalancer
+    ports:
+      zabbix-trapper:
+        port: 10051
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    storageClass: longhorn
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    globalMounts:
+      - path: /var/lib/zabbix/db_data
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1997
+    fsGroupChangePolicy: OnRootMismatch
