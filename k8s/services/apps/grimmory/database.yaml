@@ -1,0 +1,107 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: grimmory-credentials
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: k8s
+  target:
+    name: grimmory-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: database-username
+      remoteRef:
+        key: Grimmory Database
+        property: username
+    - secretKey: database-password
+      remoteRef:
+        key: Grimmory Database
+        property: password
+    - secretKey: mariadb-root-password
+      remoteRef:
+        key: Grimmory Database
+        property: root_password
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grimmory-mariadb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grimmory-mariadb
+spec:
+  selector:
+    app.kubernetes.io/name: grimmory-mariadb
+  ports:
+    - name: mariadb
+      port: 3306
+      targetPort: mariadb
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grimmory-mariadb
+spec:
+  serviceName: grimmory-mariadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: grimmory-mariadb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: grimmory-mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:11.4.5
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mariadb
+              containerPort: 3306
+          env:
+            - name: MARIADB_DATABASE
+              value: grimmory
+            - name: MARIADB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-credentials
+                  key: database-username
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-credentials
+                  key: database-password
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grimmory-credentials
+                  key: mariadb-root-password
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            tcpSocket:
+              port: mariadb
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: mariadb
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: grimmory-mariadb

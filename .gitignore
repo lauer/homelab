@@ -1,6 +1,8 @@
 # Temp/system files
 .DS_Store
 
+k8s/**/charts/**
+
 # Local .terraform directories
 **/.terraform/*
 
