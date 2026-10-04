@@ -3,7 +3,7 @@ kind: Kustomization
 
 helmCharts:
   - name: trek
-    repo: https://mauriceboe.github.io/TREK
+    repo: https://chart.liketrek.com
     releaseName: trek
     namespace: app-trek
     version: 3.1.1
