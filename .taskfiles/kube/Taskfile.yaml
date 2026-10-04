@@ -53,6 +53,37 @@ tasks:
       - for: { var: RESOURCES }
         cmd: kubectl -n "{{.NS}}" get {{.ITEM}}
 
+  diff-app:
+    desc: Compare a k8s/services app with the resources currently in the cluster
+    summary: |
+      Args:
+        APP: App path below k8s/services (required), e.g. apps/trek
+    requires:
+      vars: [APP]
+    vars:
+      APP_DIR: "k8s/services/{{.APP}}"
+    preconditions:
+      - sh: test -f "{{.APP_DIR}}/kustomization.yaml"
+        msg: "{{.APP_DIR}}/kustomization.yaml not found"
+      - sh: command -v kustomize >/dev/null 2>&1
+        msg: "kustomize is required (the app manifests use Helm charts via Kustomize)"
+      - sh: command -v yq >/dev/null 2>&1
+        msg: "yq is required to read the app namespace from kustomization.yaml"
+    cmds:
+      - |
+        manifest=$(mktemp)
+        trap 'rm -f "$manifest"' EXIT
+        kustomize build --enable-helm "{{.APP_DIR}}" > "$manifest" || exit $?
+        namespace=$(yq -r '.helmCharts[0].namespace // .namespace // ""' "{{.APP_DIR}}/kustomization.yaml")
+        set +e
+        if [ -n "$namespace" ]; then
+          kubectl diff --namespace "$namespace" -f "$manifest"
+        else
+          kubectl diff -f "$manifest"
+        fi
+        result=$?
+        if [ "$result" -eq 1 ]; then exit 0; else exit "$result"; fi
+
   debug-pod:
     desc: Attach a debug container to an existing Pod
     summary: |

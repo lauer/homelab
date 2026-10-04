@@ -1,5 +1,16 @@
 # homelab
 
+## Comparing an app with the cluster
+
+To preview differences between an app's configuration in `k8s/services` and the resources currently running in the active Kubernetes context, run:
+
+```sh
+task kube:diff-app APP=apps/trek
+```
+
+`APP` is the app's path relative to `k8s/services`. For example, use `observability/grafana` for `k8s/services/observability/grafana`.
+
+The task builds the manifests with Kustomize and Helm enabled, then runs `kubectl diff`. It reads the namespace from the app's `kustomization.yaml`. It requires `kustomize` and `yq` to be installed. This is a read-only preview and does not apply changes.
 
 ## 🤝 Thanks
 
